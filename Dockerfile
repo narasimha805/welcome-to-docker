@@ -1,23 +1,64 @@
-# Start your image with a node base image
-FROM node:18-alpine
+FROM ubuntu:18.04 as base
 
-# The /app directory should act as the main application directory
-WORKDIR /app
+ 
 
-# Copy the app package and package-lock.json file
-COPY package*.json ./
+RUN  apt-get update -y && apt-get install -y && apt-get upgrade -y
 
-# Copy local directories to the current local directory of our docker image (/app)
-COPY ./src ./src
-COPY ./public ./public
+ 
 
-# Install node packages, install serve, build the app, and remove dependencies at the end
-RUN npm install \
-    && npm install -g serve \
-    && npm run build \
-    && rm -fr node_modules
+RUN apt-get install -y software-properties-common
 
-EXPOSE 3000
+ 
 
-# Start the app using serve command
-CMD [ "serve", "-s", "build" ]
+RUN apt-get install -y vim
+
+ 
+
+RUN dpkg --add-architecture i386
+
+ 
+
+ENV DEBIAN_FRONTEND noninteractive
+
+ 
+
+ENV TZ=Asia/Kolkata \
+    DEBIAN_FRONTEND=noninteractive
+
+ 
+
+RUN apt-get install repo git-core gitk git-gui gcc-arm-linux-gnueabihf u-boot-tools device-tree-compiler mtools parted libudev-dev libusb-1.0-0-dev python-linaro-image-tools linaro-image-tools autoconf autotools-dev libsigsegv2 m4 intltool libdrm-dev curl sed make binutils build-essential gcc g++ bash patch gzip bzip2 perl tar cpio python unzip rsync file bc wget libncurses5 libqt4-dev libglib2.0-dev libgtk2.0-dev libglade2-dev cvs git mercurial rsync openssh-client subversion asciidoc w3m dblatex graphviz python-matplotlib libssl-dev texinfo genext2fs coreutils -y
+
+ 
+
+RUN apt-get install liblz4-tool g++-7 libstdc++-7-dev coreutils -y
+
+ 
+
+#RUN apt-get update -y && apt-get -f install -y && dpkg --configure -a && apt-get -f install -y && apt-get install libc6:i386 -y
+
+ 
+
+RUN apt-get install patchelf time expect-dev -y
+
+ 
+
+WORKDIR /root/
+
+ 
+
+RUN mkdir -p /root/
+
+ 
+
+ 
+
+COPY startup.sh /root/
+
+ 
+
+RUN chmod +x /root/startup.sh
+
+ 
+
+ENTRYPOINT ["/bin/bash", "/root/startup.sh"]
